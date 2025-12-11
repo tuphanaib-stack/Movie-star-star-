@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>movie star ✨- Watch Movies</title>
+    <style>
+        :root {
+            --primary-color-light: #ffffff;
+            --secondary-color-light: #f0f0f0;
+            --font-color-light: #1a1a1a;
+            --accent-color-light: #e50914;
+            --card-shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --primary-color-dark: #141414;
+            --secondary-color-dark: #1f1f1f;
+            --font-color-dark: #f5f5f5;
+            --accent-color-dark: #e50914;
+            --card-shadow-dark: 0 4px 8px rgba(0, 0, 0, 0.3);
+            --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --border-radius: 8px;
+        }
+        body {
+            background-color: var(--primary-color-dark);
+            color: var(--font-color-dark);
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            overscroll-behavior: none;
+            touch-action: manipulation;
+        }
+        body.light-mode {
+            background-color: var(--primary-color-light);
+            color: var(--font-color-light);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--secondary-color-dark);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        body.light-mode .header {
+            background-color: var(--secondary-color-light);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-color-dark);
+        }
+        .search-bar {
+            flex-grow: 1;
+            max-width: 400px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: var(--border-radius);
+            border: 1px solid #555;
+            background-color: #333;
+            color: var(--font-color-dark);
+            font-size: 1rem;
+        }
+        body.light-mode .search-bar input {
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: var(--font-color-light);
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #555;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--accent-color-dark);
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            padding: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .category-tab {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid #555;
+            background-color: transparent;
+            color: var(--font-color-dark);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        body.light-mode .category-tab {
+            color: var(--font-color-light);
+            border: 1px solid #ccc;
+        }
+        .category-tab.active, .category-tab:hover {
+            background-color: var(--accent-color-dark);
+            color: #fff;
+            border-color: var(--accent-color-dark);
+        }
+        #movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+            padding: 0 2rem 2rem;
+        }
+        .movie-card {
+            background-color: var(--secondary-color-dark);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow-dark);
+            transition: transform 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        body.light-mode .movie-card {
+            background-color: var(--secondary-color-light);
+            box-shadow: var(--card-shadow-light);
+        }
+        .movie-card:hover {
+            transform: scale(1.05);
+        }
+        .movie-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .movie-card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            padding: 2rem 1rem 0.5rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .movie-card:hover .movie-card-overlay {
+            opacity: 1;
+        }
+        .movie-card-overlay button {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #141414;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .movie-card-overlay button:hover {
+            background-color: #fff;
+        }
+        #video-player-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        #video-player-modal.active {
+            display: flex;
+        }
+        #video-player-container {
+            width: 90%;
+            max-width: 1200px;
+            position: relative;
+        }
+        #video-player {
+            width: 100%;
+            border-radius: var(--border-radius);
+        }
+        #close-player-btn {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .header { flex-direction: column; padding: 1rem; }
+            .search-bar { width: 100%; max-width: 100%; }
+            #movie-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; padding: 0 1rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">movie star ⭐✨</div>
+        <div class="search-bar">
+            <input type="search" id="search-input" placeholder="Search by title...">
+        </div>
+        <div class="header-controls">
+            <div class="theme-switch-wrapper">
+                <span>💡</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span>🌙</span>
+            </div>
+        </div>
+    </header>
+
+    <main id="user-panel">
+        <div class="category-tabs" id="category-tabs">
+            <button class="category-tab active" data-category="All">All</button>
+            <button class="category-tab" data-category="Movie">Movies</button>
+            <button class="category-tab" data-category="Anime">Anime</button>
+            <button class="category-tab" data-category="Cartoon">Cartoons</button>
+            <button class="category-tab" data-category="Series">Series</button>
+            <button class="category-tab" data-category="Short Video">Short Videos</button>
+        </div>
+        <div id="movie-grid"></div>
+    </main>
+
+    <div id="video-player-modal">
+        <div id="video-player-container">
+            <button id="close-player-btn">&times;</button>
+            <video id="video-player" controls></video>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOJhFZZA6Akxj7kXmESGQrh3D7eIzMCgY",
+            authDomain: "gamezo-7a39b.firebaseapp.com",
+            databaseURL: "https://gamezo-7a39b-default-rtdb.firebaseio.com",
+            projectId: "gamezo-7a39b",
+            storageBucket: "gamezo-7a39b.firebasestorage.app",
+            messagingSenderId: "415607280922",
+            appId: "1:415607280922:web:d09045141e53e8075ac8a3",
+            measurementId: "G-6FT1P07GTX"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let allMovies = [];
+        let currentFilter = 'All';
+
+        const movieGrid = document.getElementById('movie-grid');
+        const searchInput = document.getElementById('search-input');
+        const categoryTabs = document.getElementById('category-tabs');
+        const videoPlayerModal = document.getElementById('video-player-modal');
+        const videoPlayer = document.getElementById('video-player');
+        const closePlayerBtn = document.getElementById('close-player-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        const applyTheme = (theme) => {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                themeToggle.checked = false;
+            } else {
+                document.body.classList.remove('light-mode');
+                themeToggle.checked = true;
+            }
+        };
+        const toggleTheme = () => {
+            const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        };
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
+        const renderMovies = (moviesToRender) => {
+            movieGrid.innerHTML = '';
+            if (moviesToRender.length === 0) {
+                movieGrid.innerHTML = '<p>No movies found.</p>';
+                return;
+            }
+            moviesToRender.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.innerHTML = `
+                    <img src="${movie.posterUrl}" alt="${movie.title}">
+                    <div class="movie-card-overlay">
+                        <button class="play-btn" data-video-url="${movie.videoUrl}" data-movie-id="${movie.id}" title="Play">&#9658;</button>
+                        <button class="download-btn" data-video-url="${movie.videoUrl}" data-title="${movie.title}" title="Download">💾</button>
+                    </div>
+                `;
+                movieGrid.appendChild(movieCard);
+            });
+        };
+
+        const filterAndRender = () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            let filteredMovies = allMovies.filter(movie => movie.title && movie.category);
+            if (currentFilter !== 'All') {
+                filteredMovies = filteredMovies.filter(movie => movie.category === currentFilter);
+            }
+            if (searchTerm) {
+                filteredMovies = filteredMovies.filter(movie => movie.title.toLowerCase().includes(searchTerm));
+            }
+            renderMovies(filteredMovies);
+        };
+
+        const listenForMovieChanges = () => {
+            const cachedMovies = localStorage.getItem('movies');
+            if (cachedMovies) {
+                allMovies = JSON.parse(cachedMovies);
+                filterAndRender();
+            }
+            const moviesRef = database.ref('movies');
+            moviesRef.on('value', (snapshot) => {
+                const moviesData = snapshot.val();
+                if (moviesData) {
+                    allMovies = Object.keys(moviesData).map(key => ({ id: key, ...moviesData[key] }));
+                    localStorage.setItem('movies', JSON.stringify(allMovies));
+                } else {
+                    allMovies = [];
+                    localStorage.removeItem('movies');
+                }
+                filterAndRender();
+            }, (error) => {
+                console.error("Firebase Read Error: ", error);
+                alert("Could not fetch movies from the database.");
+            });
+        };
+
+        themeToggle.addEventListener('change', toggleTheme);
+        searchInput.addEventListener('input', filterAndRender);
+        categoryTabs.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-tab')) {
+                document.querySelector('.category-tab.active').classList.remove('active');
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.category;
+                filterAndRender();
+            }
+        });
+        movieGrid.addEventListener('click', (e) => {
+            const playBtn = e.target.closest('.play-btn');
+            const downloadBtn = e.target.closest('.download-btn');
+            if (playBtn) {
+                const videoUrl = playBtn.dataset.videoUrl;
+                const movieId = playBtn.dataset.movieId;
+                videoPlayer.src = videoUrl;
+                videoPlayer.dataset.currentMovieId = movieId;
+                videoPlayerModal.classList.add('active');
+                const resumeTime = localStorage.getItem(`resume_${movieId}`);
+                if (resumeTime) {
+                    videoPlayer.currentTime = parseFloat(resumeTime);
+                }
+                videoPlayer.play();
+            }
+            if (downloadBtn) {
+                e.stopPropagation();
+                const a = document.createElement('a');
+                a.href = downloadBtn.dataset.videoUrl;
+                a.download = `${downloadBtn.dataset.title}.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        });
+        closePlayerBtn.addEventListener('click', () => {
+            videoPlayer.pause();
+            videoPlayerModal.classList.remove('active');
+        });
+        videoPlayer.addEventListener('timeupdate', () => {
+            const movieId = videoPlayer.dataset.currentMovieId;
+            if (movieId && videoPlayer.currentTime > 0) {
+                if (!videoPlayer.lastSaveTime || (Date.now() - videoPlayer.lastSaveTime) > 5000) {
+                    localStorage.setItem(`resume_${movieId}`, videoPlayer.currentTime);
+                    videoPlayer.lastSaveTime = Date.now();
+                }
+            }
+        });
+
+        listenForMovieChanges();
+    });
+    </script>
+</body>
+</html>
